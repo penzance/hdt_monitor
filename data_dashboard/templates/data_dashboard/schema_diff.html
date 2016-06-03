@@ -1,0 +1,66 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'data_dashboard/schema.css' %}"/>
+    <title></title>
+</head>
+<body>
+<h2>Comparing schema {{s1}} to {{s2}}</h2>
+
+<div class="container">
+    <div class="panel-group" id="canvas_schema_accordion">
+        {% for table in tables %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#canvas_schema_accordion"
+                       href="#canvas_schema_collapse{{table.tableName}}">{{table.tableName}}</a>
+                </h4>
+            </div>
+            <div id="canvas_schema_collapse{{table.tableName}}" class="panel-collapse collapse">
+                <div>
+                    <table class="table table-condensed">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Length</th>
+                            <th>Description</th>
+                            <th>Dimension</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for column in table.columns %}
+                        <tr class="{% if column.added %}schema-addition{%else%}schema-deletion{%endif%}">
+                            <td >{% if column.added %}+{%else%}-{%endif%}</td>
+                            <td>{{column.name}}</td>
+                            <td>{{column.type}}</td>
+                            <td>{{column.length}}</td>
+                            <td>{{column.description}}</td>
+                            {% if column.dimension %}
+                            <td>Name: {{column.dimension.name}}, ID: {{column.dimension.id}}, Role:
+                                {{column.dimension.role}},
+                            </td>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

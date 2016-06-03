@@ -1,0 +1,16 @@
+# The secure.py file stores environment specific settings and secrets.  It is 
+# generated during deployment to AWS based on settings stored in s3.  Using the
+# below secure settings in combination with project defaults should be 
+# sufficient to get you started.  Make sure you copy this file over as is to
+# secure.py before running `vagrant up`.
+
+SECURE_SETTINGS = {
+    'enable_debug': True,
+    'django_secret_key': '!kyvgo3@op^ybr7t=t2qz(pwg&o&paj27(!j3&@-pf$+$olpeb',
+    'db_default_name': 'hdt_monitor',
+    'db_default_user': 'hdt_monitor',
+    'db_default_password': 'hdt_monitor',
+    'canvas_data_host': "data.example.com",
+    'canvas_data_key': "canvas data key",
+    'canvas_data_secret': "canvas data secret",
+}

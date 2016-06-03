@@ -1,0 +1,55 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <title></title>
+</head>
+<body>
+<dl class="dl-horizontal">
+    <dt>Sequence</dt>
+    <dd>{{dump.sequence}}</dd>
+    <dt>Dump ID</dt>
+    <dd>{{dump.dumpId}}</dd>
+    <dt>Schema Version</dt>
+    <dd><a href="../schema/{{dump.schemaVersion}}">{{dump.schemaVersion}}</a></dd>
+    <dt>Table Count</dt>
+    <dd>{{dump.numFiles}}</dd>
+    <dt>Created</dt>
+    <dd>{{dump.createdAt}}</dd>
+    <dt>Updated</dt>
+    <dd>{{dump.updatedAt}}</dd>
+    <dt>Expires</dt>
+    <dd>{{dump.expires}}</dd>
+    <dt>Finished</dt>
+    <dd>{{dump.finished}}</dd>
+    <dt>Account</dt>
+    <dd>{{dump.accountId}}</dd>
+
+</dl>
+
+<table class="table table-striped table-condensed">
+    <thead>
+    <tr>
+        <th>Table Name</th>
+        <th>Partial</th>
+        <th>File Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for table in tables %}
+    <tr>
+        <td><a href="../table/{{table.tableName}}">{{table.tableName}}</a></td>
+        <td>{{table.partial}}</td>
+        <td>{{table.files|length}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>
