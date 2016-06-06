@@ -4,11 +4,18 @@ from django.conf import settings
 
 
 def s3_resource():
-    return boto3.resource('s3')
+    return boto3.resource(
+        's3', aws_access_key_id=settings.AWS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_KEY
+    )
 
 
 def dynamo_client():
-    return boto3.client('dynamodb', region_name=settings.AWS_REGION)
+    return boto3.client(
+        'dynamodb', region_name=settings.AWS_REGION,
+        aws_access_key_id=settings.AWS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_KEY
+    )
 
 
 def get_report(pipeline_id):

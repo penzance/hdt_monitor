@@ -16,4 +16,6 @@ SECURE_SETTINGS = {
     'aws_region': 'us-east-1',
     'dynamo_pipeline_table': 'dynamo-table',
     'pipeline_report_bucket': "report-bucket",
+    'aws_key_id': 'key_id',
+    'aws_secret_key': 'secret_key',
 }
