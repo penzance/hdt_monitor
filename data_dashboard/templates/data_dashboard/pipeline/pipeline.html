@@ -1,0 +1,39 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'data_dashboard/pipeline/pipeline.css' %}"/>
+    <title></title>
+</head>
+<body>
+<h2>Pipeline report for {{pipeline.pipeline_name.S}} ({{pipeline.pipeline_id.S}})</h2>
+
+<div><a target="_blank" href="{{report.emrUrl}}">EMR Cluster</a></div>
+
+<table class="table table-striped table-condensed">
+    <thead>
+    <tr>
+        <th>Step</th>
+        <th>Status</th>
+        <th>Logs</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for step in steps %}
+    <tr>
+        <td>{{step.name}}</td>
+        <td>{{step.status}}</td>
+        <td>
+            {% for log in step.logs %}
+            <div><a target="_blank" href="{{log.url}}">{{log.label}}</a></div>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>

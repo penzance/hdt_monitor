@@ -13,4 +13,7 @@ SECURE_SETTINGS = {
     'canvas_data_host': "data.example.com",
     'canvas_data_key': "canvas data key",
     'canvas_data_secret': "canvas data secret",
+    'aws_region': 'us-east-1',
+    'dynamo_pipeline_table': 'dynamo-table',
+    'pipeline_report_bucket': "report-bucket",
 }

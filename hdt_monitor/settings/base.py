@@ -195,3 +195,6 @@ LOGGING = {
 CANVAS_DATA_HOST = SECURE_SETTINGS['canvas_data_host']
 CANVAS_DATA_KEY = SECURE_SETTINGS['canvas_data_key']
 CANVAS_DATA_SECRET = SECURE_SETTINGS['canvas_data_secret']
+AWS_REGION = SECURE_SETTINGS['aws_region']
+DYNAMO_PIPELINE_TABLE = SECURE_SETTINGS['dynamo_pipeline_table']
+PIPELINE_REPORT_BUCKET = SECURE_SETTINGS['pipeline_report_bucket']

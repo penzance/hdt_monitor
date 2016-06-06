@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from . import main_views, canvas_views
+from . import main_views, canvas_views, pipeline_views
 
 urlpatterns = [
     url(r'^main$', main_views.index, name='main_index'),
@@ -9,4 +9,8 @@ urlpatterns = [
     url(r'^canvas/dump$', canvas_views.list_dumps, name='list_canvas_dumps'),
     url(r'^canvas/dump/(?P<dump_id>[^/]+)$', canvas_views.dump, name='canvas_dump'),
     url(r'^canvas/table/(?P<table_name>[^/]+)$', canvas_views.table, name='canvas_table'),
+
+    url(r'^pipeline/(?P<pipeline_id>[^/]+)$', pipeline_views.pipeline_report, name='pipeline_report'),
+    url(r'^pipeline$', pipeline_views.pipeline_index, name='list_pipelines'),
+
 ]
