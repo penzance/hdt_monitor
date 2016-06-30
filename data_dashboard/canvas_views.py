@@ -31,7 +31,9 @@ def schema(request, schema_id):
     for _, table in s1['schema'].items():
         tables.append(table)
     tables.sort(key=lambda x: x['tableName'])
-    context = {'tables': tables, 'version': s1['version']}
+    schemas = [x['version'] for x in canvas_api.list_schemas()]
+    schemas.sort(key=lambda s: [int(u) for u in s.split('.')])
+    context = {'tables': tables, 'version': s1['version'], 'schemas': schemas}
     return render(request, 'data_dashboard/schema.html', context)
 
 

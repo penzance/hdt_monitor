@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'data_dashboard/schema.css' %}"/>
@@ -13,6 +13,16 @@
 <h2>
     Schema Version {{ version }}
 </h2>
+
+<div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Compare to Version
+        <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+        {% for schema in schemas %}
+        <li><a href="{{schema}}/diff/{{version}}">{{schema}}</a></li>
+        {% endfor %}
+    </ul>
+</div>
 
 <div class="container">
     <div class="panel-group" id="canvas_schema_accordion">
@@ -62,7 +72,9 @@
                             <td>{{column.length}}</td>
                             <td>{{column.description}}</td>
                             {% if column.dimension %}
-                            <td>Name: {{column.dimension.name}}, ID: {{column.dimension.id}}, Role: {{column.dimension.role}}, </td>
+                            <td>Name: {{column.dimension.name}}, ID: {{column.dimension.id}}, Role:
+                                {{column.dimension.role}},
+                            </td>
                             {% else %}
                             <td></td>
                             {% endif %}
