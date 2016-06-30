@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import pipeline_api
 
-
+ 
 def pipeline_report(request, pipeline_id):
     context = {}
     pipeline = pipeline_api.get_pipeline(pipeline_id)
