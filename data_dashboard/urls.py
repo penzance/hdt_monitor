@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^canvas/dump/(?P<dump_id>[^/]+)$', canvas_views.dump, name='canvas_dump'),
     url(r'^canvas/table/(?P<table_name>[^/]+)$', canvas_views.table, name='canvas_table'),
 
-    url(r'^pipeline/(?P<pipeline_id>[^/]+)$', pipeline_views.pipeline_report, name='pipeline_report'),
-    url(r'^pipeline$', pipeline_views.pipeline_index, name='list_pipelines'),
+    url(r'^pipeline/(?P<branch>[^/]+)/(?P<run_id>[^/]+)$', pipeline_views.pipeline_report, name='pipeline_report'),
+    url(r'^pipeline/(?P<branch>[^/]+)$', pipeline_views.pipeline_index, name='list_pipelines'),
 
 ]

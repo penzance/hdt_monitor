@@ -1,24 +1,157 @@
 from django.shortcuts import render
 import pipeline_api
+from django.conf import settings
 
- 
-def pipeline_report(request, pipeline_id):
+STATUS_VALUES = [
+    'ProvisioningPhase0', 'Phase0Running', 'CreatingPipeline',
+    'ProvisioningPipeline', 'PipelineRunning', 'Success', 'Failed'
+]
+
+PHASE_0_CLOUD_INIT_OUTPUT_GROUP = 'Phase_0-/var/log/cloud-init-output'
+PHASE_0_GENERATE_TOOLS_GROUP = 'Phase_0-/var/log/generate-tools'
+PHASE_0_OUTPUT_GROUP = 'Phase_0-/var/log/phase0-output'
+PHASE_0_PIPELINE_INIT_GROUP = 'Phase_0-/var/log/pipeline-init'
+
+
+def get_log_url(group, stream):
+    return "https://console.aws.amazon.com/cloudwatch/home?region={}#logEvent:group={};stream={}".format(
+        settings.AWS_REGION, group, stream)
+
+
+def get_pipeline_url(pipeline_id):
+    return "https://console.aws.amazon.com/datapipeline/home?region={}#ExecutionDetailsPlace:pipelineId={}&show=latest".format(
+        settings.AWS_REGION, pipeline_id)
+
+
+def get_emr_url(emr_id):
+    return "https://console.aws.amazon.com/elasticmapreduce/home?region={}#cluster-details:{}".format(
+        settings.AWS_REGION, emr_id)
+
+
+def get_spot_request_url():
+    return "https://console.aws.amazon.com/ec2sp/v1/spot/dashboard?region={}".format(
+        settings.AWS_REGION
+    )
+
+
+def pipeline_report(request, branch, run_id):
     context = {}
-    pipeline = pipeline_api.get_pipeline(pipeline_id)
-    if 'status' in pipeline:
-        if pipeline['status']['S'] == 'Success' or pipeline['status']['S'] == 'Failure':
-            report = pipeline_api.get_report(pipeline_id)
+    run = pipeline_api.get_run(run_id, branch)
+    status = run['status']['S']
+    context['status'] = status
+    context['run_id'] = run_id
+
+    context['stages'] = []
+    if STATUS_VALUES.index(status) >= 0:
+        logs = [
+            {
+                'title': 'Bootstrap Lambda',
+                'url': get_log_url(
+                    run['bootstrap_log_group']['S'],
+                    run['bootstrap_log_stream']['S'])
+            },
+            {
+                'title': "Spot Request {}".format(
+                    run['phase_0_request_id']['S']),
+                'url': get_spot_request_url()
+            }
+        ]
+        context['stages'].append({
+            'title': 'Bootstrap', 'id': 'bootstrap', 'logs': logs
+        })
+
+    phase0_instance_id = ''
+    if STATUS_VALUES.index(status) >= 1:
+        phase0_instance_id = run['phase_0_instance_id']['S']
+        logs = [
+            {
+                'title': 'Phase 0 Cloud Init',
+                'url': get_log_url(PHASE_0_CLOUD_INIT_OUTPUT_GROUP,
+                                   "{}-cloud-init-output".format(
+                                       phase0_instance_id))
+            },
+            {
+                'title': 'Phase 0 Generate Tools',
+                'url': get_log_url(PHASE_0_GENERATE_TOOLS_GROUP,
+                                   "{}-generate-tools-output".format(
+                                       phase0_instance_id))
+            }
+        ]
+        if 'phase_0_ip' in run:
+            logs.append({
+                'title': 'Connect to Phase 0 Machine',
+                'text': "ssh ec2-user@{}".format(run['phase_0_ip']['S'])
+            })
+        context['stages'].append({
+            'title': 'Phase 0 Startup', 'id': 'phase_0_startup', 'logs': logs
+        })
+
+    if STATUS_VALUES.index(status) >= 2:
+        logs = [
+            {
+                'title': 'Phase 0',
+                'url': get_log_url(PHASE_0_OUTPUT_GROUP,
+                                   "{}-phase0-output".format(
+                                       phase0_instance_id))
+            }
+        ]
+        context['stages'].append({
+            'title': 'Phase 0', 'id': 'phase_0', 'logs': logs
+        })
+
+    if STATUS_VALUES.index(status) >= 3:
+        logs = [
+            {
+                'title': 'Pipeline Init',
+                'url': get_log_url(PHASE_0_PIPELINE_INIT_GROUP,
+                                   "{}-pipeline-init".format(
+                                       phase0_instance_id))
+            }
+        ]
+        if 'pipeline_id' in run:
+            logs.append({
+                'title': 'Pipeline Details',
+                'url': get_pipeline_url(run['pipeline_id']['S'])
+            })
+        if 'emr_id' in run:
+            logs.append({
+                'title': 'EMR Cluster Details',
+                'url': get_emr_url(run['emr_id']['S'])
+            })
+        if 'emr_master_ip' in run:
+            logs.append({
+                'title': 'Connect to EMR Master Node',
+                'text': "ssh hadoop@{}".format(run['emr_master_ip']['S'])
+            })
+        context['stages'].append({
+            'title': 'Pipeline', 'id': 'pipeline', 'logs': logs
+        })
+
+    if STATUS_VALUES.index(status) >= 5:
+        logs = []
+        if 'cleanup_log_group' in run:
+            logs.append({
+                'title': 'Cleanup Lambda',
+                'url': get_log_url(
+                    run['cleanup_log_group']['S'],
+                    run['cleanup_log_stream']['S'])
+            })
+        report = pipeline_api.get_report(run_id)
+        if report:
             steps = []
             for step in report['steps']:
                 steps.append(report['pipelineObjects'][step])
             context['report'] = report
             context['steps'] = steps
-    context['pipeline_id'] = pipeline_id
-    context['pipeline'] = pipeline
+        context['stages'].append({
+            'title': 'Cleanup', 'id': 'cleanup', 'logs': logs
+        })
+
+    print "Context: {}".format(context)
     return render(request, 'data_dashboard/pipeline/pipeline.html', context)
 
 
-def pipeline_index(request):
-    pipelines = pipeline_api.list_pipelines()
-    context = {'pipelines': pipelines}
+def pipeline_index(request, branch):
+    pipelines = pipeline_api.list_runs(branch)
+    context = {'pipelines': pipelines, 'branch': branch}
     return render(request, 'data_dashboard/pipeline/pipelines.html', context)

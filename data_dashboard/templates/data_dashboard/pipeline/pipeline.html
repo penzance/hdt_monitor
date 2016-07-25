@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="60">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
@@ -10,30 +11,62 @@
     <title></title>
 </head>
 <body>
-<h2>Pipeline report for {{pipeline.pipeline_name.S}} ({{pipeline.pipeline_id.S}})</h2>
+<h2>{{run_id}}</h2>
 
-<div><a target="_blank" href="{{report.emrUrl}}">EMR Cluster</a></div>
+<h3>{{status}}</h3>
 
-<table class="table table-striped table-condensed">
-    <thead>
-    <tr>
-        <th>Step</th>
-        <th>Status</th>
-        <th>Logs</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for step in steps %}
-    <tr>
-        <td>{{step.name}}</td>
-        <td>{{step.status}}</td>
-        <td>
-            {% for log in step.logs %}
-            <div><a target="_blank" href="{{log.url}}">{{log.label}}</a></div>
+<div id="stages">
+    {% for stage in stages %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                {{stage.title}}
+            </h4>
+        </div>
+        <div id="pipeline_report_{{stage.id}}">
+            {% for log in stage.logs %}
+            <div>
+                {% if log.url %}
+                <a target="_blank" href="{{log.url}}">{{log.title}}</a>
+                {% endif %}
+                {% if log.text %}
+                {{log.title}}: <em>{{log.text}}</em>
+                {% endif %}
+            </div>
             {% endfor %}
-        </td>
-    </tr>
+        </div>
+    </div>
     {% endfor %}
-    </tbody>
-</table>
+</div>
+
+{% if steps %}
+<div id="pipeline_report">
+    {% for step in steps %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                {{step.name}}: {{step.status}}
+            </h4>
+        </div>
+        <div id="pipeline_report_{{stage.id}}">
+            {% if step.errorMessage %}
+            <div>{{step.errorMessage}}</div>
+            {% endif %}
+
+            {% for log in step.logs %}
+            <div>
+                {% if log.url %}
+                <a target="_blank" href="{{log.url}}">{{log.label}}</a>
+                {% endif %}
+                {% if log.text %}
+                {{log.title}}: <em>{{log.text}}</em>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 </body>
