@@ -49,13 +49,15 @@ def pipeline_report(request, branch, run_id):
                 'url': get_log_url(
                     run['bootstrap_log_group']['S'],
                     run['bootstrap_log_stream']['S'])
-            },
-            {
+            }
+        ]
+        if 'phase_0_request_id' in run:
+            logs.append({
                 'title': "Spot Request {}".format(
                     run['phase_0_request_id']['S']),
                 'url': get_spot_request_url()
-            }
-        ]
+            })
+
         context['stages'].append({
             'title': 'Bootstrap', 'id': 'bootstrap', 'logs': logs
         })
