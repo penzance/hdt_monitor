@@ -19,6 +19,21 @@ def dynamo_client():
     )
 
 
+def get_files(bucket, path):
+    s3resource = s3_resource()
+    try:
+        obj = s3resource.Object(bucket,
+                                "{}/directoryList.json".format(path))
+        file_sizes = json.loads(obj.get()['Body'].read())['fileSizes']
+        files = list(file_sizes.keys())
+        files.sort()
+        return files
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'NoSuchKey':
+            return None
+        raise e
+
+
 def get_report(run_id):
     print "Getting report at {}/{}.json".format(settings.PIPELINE_REPORT_BUCKET,run_id)
     s3resource = s3_resource()
@@ -38,7 +53,6 @@ def get_run(run_id, branch):
     else:
         table = "{}-{}".format(settings.DYNAMO_PIPELINE_TABLE, branch)
     run = dbclient.get_item(TableName=table, Key={'run_id': {'S': run_id}})
-    print "Item: {}".format(run['Item'])
     return run['Item']
 
 

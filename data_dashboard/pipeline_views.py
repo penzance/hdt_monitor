@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import pipeline_api
 from django.conf import settings
+import re
 
 STATUS_VALUES = [
     'ProvisioningPhase0', 'Phase0Running', 'CreatingPipeline',
@@ -39,6 +40,15 @@ def get_ssh_command(user, host):
         user, host
     )
 
+def split_s3_uri(uri):
+    pattern = re.compile('s3://([\w\.-]+)/(.*)')
+    result = pattern.match(uri)
+    return result.group(1), result.group(2)
+
+def get_s3_url(bucket, path):
+    return "https://console.aws.amazon.com/s3/home?region={}&bucket={}&prefix={}".format(
+        settings.AWS_REGION, bucket, path
+    )
 
 def pipeline_report(request, branch, run_id):
     context = {}
@@ -47,7 +57,28 @@ def pipeline_report(request, branch, run_id):
     context['status'] = status
     context['run_id'] = run_id
 
-    context['stages'] = []
+    info = [
+        {
+            'title': 'Run ID',
+            'text': run_id
+        },
+        {
+            'title': 'Status',
+            'text': status
+        }
+    ]
+    if 'working_directory' in run:
+        working_dir = split_s3_uri(run['working_directory']['S'])
+        info.append({
+            'title': 'Working Directory',
+            'url': get_s3_url(working_dir[0], working_dir[1])
+        })
+        files = pipeline_api.get_files(working_dir[0], working_dir[1])
+        if files:
+            context['files'] = files
+
+    context['stages'] = [
+        {'title': 'Run Information', 'id': 'info', 'logs': info}]
     if STATUS_VALUES.index(status) >= 0:
         logs = [
             {
@@ -155,7 +186,6 @@ def pipeline_report(request, branch, run_id):
             'title': 'Cleanup', 'id': 'cleanup', 'logs': logs
         })
 
-    print "Context: {}".format(context)
     return render(request, 'data_dashboard/pipeline/pipeline.html', context)
 
 

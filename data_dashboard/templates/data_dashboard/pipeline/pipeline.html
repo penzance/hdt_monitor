@@ -11,9 +11,6 @@
     <title></title>
 </head>
 <body>
-<h2>{{run_id}}</h2>
-
-<h3>{{status}}</h3>
 
 <div id="stages">
     {% for stage in stages %}
@@ -59,7 +56,8 @@
                 <a target="_blank" href="{{log.url}}">{{log.label}}</a>
                 {% endif %}
                 {% if log.text %}
-                {{log.title}}: <textfield><em>{{log.text}}</em></textfield>
+                {{log.title}}:
+                <textfield><em>{{log.text}}</em></textfield>
                 {% endif %}
             </div>
             {% endfor %}
@@ -67,6 +65,21 @@
     </div>
     {% endfor %}
 </div>
+{% endif %}
+
+{% if files %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                Files
+            </h4>
+        </div>
+        <div id="pipeline_files">
+            {% for file in files %}
+            <div>{{file}}</div>
+            {% endfor %}
+        </div>
+    </div>
 {% endif %}
 
 </body>
