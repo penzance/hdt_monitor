@@ -34,6 +34,12 @@ def get_spot_request_url():
     )
 
 
+def get_ssh_command(user, host):
+    return "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {}@{}".format(
+        user, host
+    )
+
+
 def pipeline_report(request, branch, run_id):
     context = {}
     run = pipeline_api.get_run(run_id, branch)
@@ -82,7 +88,7 @@ def pipeline_report(request, branch, run_id):
         if 'phase_0_ip' in run:
             logs.append({
                 'title': 'Connect to Phase 0 Machine',
-                'text': "ssh ec2-user@{}".format(run['phase_0_ip']['S'])
+                'text': get_ssh_command('ec2-user', run['phase_0_ip']['S'])
             })
         context['stages'].append({
             'title': 'Phase 0 Startup', 'id': 'phase_0_startup', 'logs': logs
@@ -123,7 +129,7 @@ def pipeline_report(request, branch, run_id):
         if 'emr_master_ip' in run:
             logs.append({
                 'title': 'Connect to EMR Master Node',
-                'text': "ssh hadoop@{}".format(run['emr_master_ip']['S'])
+                'text': get_ssh_command('hadoop', run['emr_master_ip']['S'])
             })
         context['stages'].append({
             'title': 'Pipeline', 'id': 'pipeline', 'logs': logs
