@@ -30,7 +30,7 @@
                 <a target="_blank" href="{{log.url}}">{{log.title}}</a>
                 {% endif %}
                 {% if log.text %}
-                {{log.title}}: <em>{{log.text}}</em>
+                {{log.title}}: <input type="text" class="selectable_text" readonly="true" value="{{log.text}}">
                 {% endif %}
             </div>
             {% endfor %}
@@ -59,7 +59,7 @@
                 <a target="_blank" href="{{log.url}}">{{log.label}}</a>
                 {% endif %}
                 {% if log.text %}
-                {{log.title}}: <em>{{log.text}}</em>
+                {{log.title}}: <textfield><em>{{log.text}}</em></textfield>
                 {% endif %}
             </div>
             {% endfor %}
