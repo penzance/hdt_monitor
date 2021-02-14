@@ -1,5 +1,4 @@
 from .base import *
-from logging.config import dictConfig
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECURE_SETTINGS['django_secret_key']
@@ -22,6 +21,3 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587  # Use 587 or 2587 to avoid timeouts when sending mail via Amazon SES
 EMAIL_HOST_USER = SECURE_SETTINGS.get('email_host_user', '')
 EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
-
-# Configure logging
-dictConfig(LOGGING)
