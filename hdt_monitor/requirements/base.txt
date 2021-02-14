@@ -1,6 +1,6 @@
 Django==2.2.18
 # Postgres
-psycopg2==2.8.6
+psycopg2-binary==2.8.6
 # Redis Cache
 redis==2.10.5
 django-redis-cache==1.6.5
