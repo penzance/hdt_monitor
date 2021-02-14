@@ -155,7 +155,7 @@ STATIC_URL = '/static/'
 # Make sure log timestamps are in GMT
 logging.Formatter.converter = time.gmtime
 
-_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.ERROR)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
 LOGGING = {
@@ -221,12 +221,12 @@ LOGGING = {
     'loggers': {
         'gunicorn': {
             'handlers': ['gunicorn'],
-            'level': 'ERROR',
+            'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
         'data_dashboard': {
             'handlers': ['default'],
-            'level': 'ERROR',
+            'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
     },

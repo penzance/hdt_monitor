@@ -1,9 +1,13 @@
-import hashlib
 import base64
+import hashlib
 import hmac
+import logging
 from email.utils import formatdate
+
 import requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 def api_call(path):
@@ -30,7 +34,7 @@ def api_call(path):
         'Date': date
     }
     r = requests.get(url, headers=headers)
-    print("{}".format(r))
+    logger.debug("{}".format(r.text))
     return r.json()
 
 
