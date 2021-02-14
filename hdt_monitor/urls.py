@@ -15,8 +15,12 @@ Including another URLconf
 from django.urls import include, path, re_path
 from django.conf import settings
 
+import watchman.urls
+
 urlpatterns = [
     path('data_dashboard/', include('data_dashboard.urls')),
+    path('w/', include('watchman.urls')),
+    re_path(r'^status/?$', watchman.views.bare_status),
 ]
 
 if settings.DEBUG:

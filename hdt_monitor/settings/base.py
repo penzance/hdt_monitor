@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'data_dashboard',
+    'watchman',
 ]
 
 MIDDLEWARE = [
@@ -207,3 +208,10 @@ AWS_SECRET_KEY = SECURE_SETTINGS['aws_secret_key']
 AWS_REGION = SECURE_SETTINGS['aws_region']
 DYNAMO_PIPELINE_TABLE = SECURE_SETTINGS['dynamo_pipeline_table']
 PIPELINE_REPORT_BUCKET = SECURE_SETTINGS['pipeline_report_bucket']
+
+WATCHMAN_TOKENS = SECURE_SETTINGS['watchman_token']
+WATCHMAN_TOKEN_NAME = SECURE_SETTINGS['watchman_token_name']
+WATCHMAN_CHECKS = (
+    'watchman.checks.databases',
+    'watchman.checks.caches',
+)

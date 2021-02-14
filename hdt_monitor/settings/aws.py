@@ -9,6 +9,7 @@ DEBUG = SECURE_SETTINGS['enable_debug']
 
 # tlt hostnames
 ALLOWED_HOSTS = ['.tlt.harvard.edu']
+ALLOWED_CIDR_NETS = [SECURE_SETTINGS.get('vpc_cidr_block')]
 
 # SSL is terminated at the ELB so look for this header to know that we should be in ssl mode
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
