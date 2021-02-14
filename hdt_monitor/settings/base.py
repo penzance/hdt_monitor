@@ -9,7 +9,15 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 import os
 import logging
-from .secure import SECURE_SETTINGS
+
+from dj_secure_settings.loader import load_secure_settings
+
+SECURE_SETTINGS = load_secure_settings()
+
+try:
+    from build_info import BUILD_INFO
+except ImportError:
+    BUILD_INFO = {}
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # NOTE: Since we have a settings module, we have to go one more directory up to get to
@@ -28,13 +36,12 @@ INSTALLED_APPS = [
     'data_dashboard',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

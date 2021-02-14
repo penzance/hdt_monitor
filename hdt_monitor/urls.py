@@ -12,8 +12,15 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import include, url
+from django.urls import include, path, re_path
+from django.conf import settings
 
 urlpatterns = [
-    url(r'^data_dashboard/', include('data_dashboard.urls')),
+    path('data_dashboard/', include('data_dashboard.urls')),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        re_path(r'^__debug__/', include(debug_toolbar.urls)),
+    ]

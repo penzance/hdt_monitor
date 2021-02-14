@@ -1,5 +1,5 @@
 from django.shortcuts import render
-import pipeline_api
+from . import pipeline_api
 from django.conf import settings
 import re
 

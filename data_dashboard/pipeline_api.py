@@ -35,7 +35,7 @@ def get_files(bucket, path):
 
 
 def get_report(run_id):
-    print "Getting report at {}/{}.json".format(settings.PIPELINE_REPORT_BUCKET,run_id)
+    print("Getting report at {}/{}.json".format(settings.PIPELINE_REPORT_BUCKET,run_id))
     s3resource = s3_resource()
     try:
         obj = s3resource.Object(settings.PIPELINE_REPORT_BUCKET,

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-import canvas_api
+from . import canvas_api
 
 def list_dumps(request):
     dumps = canvas_api.list_dumps()
@@ -12,7 +12,7 @@ def list_dumps(request):
 def dump(request, dump_id):
     tables = []
     dump_data = canvas_api.dump_info(dump_id)
-    for _, table in dump_data['artifactsByTable'].items():
+    for _, table in list(dump_data['artifactsByTable'].items()):
         tables.append(table)
     tables.sort(key=lambda x: x['tableName'])
     context = {'dump': dump_data, 'tables': tables}
@@ -28,7 +28,7 @@ def table(request, table_name):
 def schema(request, schema_id):
     s1 = canvas_api.get_schema(schema_id)
     tables = []
-    for _, table in s1['schema'].items():
+    for _, table in list(s1['schema'].items()):
         tables.append(table)
     tables.sort(key=lambda x: x['tableName'])
     schemas = [x['version'] for x in canvas_api.list_schemas()]

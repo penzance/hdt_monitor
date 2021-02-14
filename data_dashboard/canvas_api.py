@@ -5,6 +5,7 @@ from email.utils import formatdate
 import requests
 from django.conf import settings
 
+
 def api_call(path):
     host = settings.CANVAS_DATA_HOST
     key = settings.CANVAS_DATA_KEY
@@ -18,7 +19,10 @@ def api_call(path):
         method, host, content_type, md5, path, query_params, date, secret
     )
     signature = base64.b64encode(
-        hmac.new(secret, message, hashlib.sha256).digest())
+        hmac.new(bytes(secret, 'utf-8'), bytes(message, 'utf-8'), hashlib.sha256).digest()
+    )
+
+    signature = signature.decode('utf-8')
 
     url = "https://{}{}".format(host, path)
     headers = {
@@ -26,7 +30,7 @@ def api_call(path):
         'Date': date
     }
     r = requests.get(url, headers=headers)
-    print "{}".format(r)
+    print("{}".format(r))
     return r.json()
 
 
@@ -105,7 +109,7 @@ def compare_columns(column, t2_cols):
 
 def get_table_names(schema):
     names = []
-    for key, table in schema['schema'].items():
+    for key, table in list(schema['schema'].items()):
         names.append(table['tableName'])
     names.sort()
     return names
@@ -113,7 +117,7 @@ def get_table_names(schema):
 
 def get_table_by_name(schema, name):
     return next(
-        (y for x, y in schema['schema'].items() if y['tableName'] == name),
+        (y for x, y in list(schema['schema'].items()) if y['tableName'] == name),
         None)
 
 
