@@ -1,8 +1,11 @@
+import json
+import logging
+
 import boto3
 import botocore
-import json
 from django.conf import settings
 
+logger = logging.getLogger(__name__)
 
 def s3_resource():
     return boto3.resource(
@@ -35,7 +38,7 @@ def get_files(bucket, path):
 
 
 def get_report(run_id):
-    print "Getting report at {}/{}.json".format(settings.PIPELINE_REPORT_BUCKET,run_id)
+    logger.info("Getting report at {}/{}.json".format(settings.PIPELINE_REPORT_BUCKET, run_id))
     s3resource = s3_resource()
     try:
         obj = s3resource.Object(settings.PIPELINE_REPORT_BUCKET,

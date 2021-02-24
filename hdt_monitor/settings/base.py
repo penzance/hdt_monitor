@@ -7,9 +7,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
-import os
 import logging
-from .secure import SECURE_SETTINGS
+import os
+import time
+
+from dj_secure_settings.loader import load_secure_settings
+from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
+
+SECURE_SETTINGS = load_secure_settings()
+
+try:
+    from build_info import BUILD_INFO
+except ImportError:
+    BUILD_INFO = {}
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # NOTE: Since we have a settings module, we have to go one more directory up to get to
@@ -26,15 +36,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'data_dashboard',
+    'watchman',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
+    'allow_cidr.middleware.AllowCIDRMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -141,11 +152,10 @@ STATIC_URL = '/static/'
 # Logging
 # https://docs.djangoproject.com/en/1.9/topics/logging/#configuring-logging
 
-# Turn off default Django logging
-# https://docs.djangoproject.com/en/1.9/topics/logging/#disabling-logging-configuration
-LOGGING_CONFIG = None
+# Make sure log timestamps are in GMT
+logging.Formatter.converter = time.gmtime
 
-_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.ERROR)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
 LOGGING = {
@@ -156,17 +166,46 @@ LOGGING = {
             'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
             'datefmt': '%Y-%m-%dT%H:%M:%S'
         },
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'format': JSON_LOG_FORMAT,
+        },
         'simple': {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         },
     },
+    'filters': {
+        'context': {
+            '()': 'icommons_common.logging.ContextFilter',
+            'env': SECURE_SETTINGS.get('env_name'),
+            'project': 'hdt_monitor',
+            'department': 'uw',
+        },
+    },
     'handlers': {
-        # By default, log to a file
         'default': {
-            'class': 'logging.handlers.WatchedFileHandler',
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'django-hdt_monitor',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            'formatter': 'verbose',
-            'filename': os.path.join(_LOG_ROOT, 'django-hdt_monitor.log'),
+            'filters': ['context'],
+        },
+        'gunicorn': {
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'gunicorn-hdt_monitor',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'filters': ['context'],
         },
     },
     # This is the default logger for any apps or libraries that use the logger
@@ -180,14 +219,16 @@ LOGGING = {
         'handlers': ['default'],
     },
     'loggers': {
-        # Add app specific loggers here, should look something like this:
-        # '': {
-        #    'level': _DEFAULT_LOG_LEVEL,
-        #    'handlers': ['default'],
-        #    'propagate': False,
-        # },
-        # Make sure that propagate is False so that the root logger doesn't get involved
-        # after an app logger handles a log message.
+        'gunicorn': {
+            'handlers': ['gunicorn'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
+        'data_dashboard': {
+            'handlers': ['default'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
     },
 }
 
@@ -200,3 +241,10 @@ AWS_SECRET_KEY = SECURE_SETTINGS['aws_secret_key']
 AWS_REGION = SECURE_SETTINGS['aws_region']
 DYNAMO_PIPELINE_TABLE = SECURE_SETTINGS['dynamo_pipeline_table']
 PIPELINE_REPORT_BUCKET = SECURE_SETTINGS['pipeline_report_bucket']
+
+WATCHMAN_TOKENS = SECURE_SETTINGS['watchman_token']
+WATCHMAN_TOKEN_NAME = SECURE_SETTINGS['watchman_token_name']
+WATCHMAN_CHECKS = (
+    'watchman.checks.databases',
+    'watchman.checks.caches',
+)
