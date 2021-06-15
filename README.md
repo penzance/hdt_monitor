@@ -1,3 +1,5 @@
+**This project is no longer used, as of June 2021. Cf [AT+VPAL discussion in TLT Slack on June 15, 2021](https://tlt.slack.com/archives/C0213GV2F33/p1623769360002400).**
+
 django-project-template
 =======================
 
